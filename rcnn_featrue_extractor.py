@@ -12,6 +12,9 @@ import torch.nn as nn
 class FasterRcnnFeatureExtractor(nn.Module):
     def __init__(self, original_model):
         super(FasterRcnnFeatureExtractor, self).__init__()
+        self.num_classes = 91
+        self.device = 'cuda'
+
         self.transform = original_model.transform
         self.backbone = original_model.backbone
         self.rpn = original_model.rpn
@@ -53,8 +56,6 @@ class FasterRcnnFeatureExtractor(nn.Module):
         pred_boxes_list = pred_boxes.split(boxes_per_image, 0)
         pred_scores_list = pred_scores.split(boxes_per_image, 0)
         features_list = box_features.split(boxes_per_image, 0)
-        num_classes = 91
-        device = 'cuda'
 
         all_boxes = []
         all_scores = []
@@ -64,7 +65,7 @@ class FasterRcnnFeatureExtractor(nn.Module):
             boxes = box_ops.clip_boxes_to_image(boxes, image_shape)
 
             # create labels for each prediction
-            labels = torch.arange(num_classes, device=device)
+            labels = torch.arange(self.num_classes, device=self.device)
             labels = labels.view(1, -1).expand_as(scores)
 
             # remove predictions with the background label
@@ -85,7 +86,7 @@ class FasterRcnnFeatureExtractor(nn.Module):
             boxes = boxes/image_shape[0]  # Normalize coord value to 0 to 1
             boxes, scores, labels = boxes[keep], scores[keep], labels[keep]
 
-            box_feature_keep = keep / (num_classes-1)  # Select corresponding box feature index
+            box_feature_keep = keep / (self.num_classes-1)  # Select corresponding box feature index
             box_features = box_features[box_feature_keep]
 
             all_boxes.append(boxes)
