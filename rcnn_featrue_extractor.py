@@ -96,7 +96,7 @@ class FasterRcnnFeatureExtractor(nn.Module):
         return all_boxes, all_features
 
     @classmethod
-    def build_custom_feat_extractor(cls):
+    def build_pretrained(cls):
         f_rcnn = models.detection.fasterrcnn_resnet50_fpn(pretrained=True).eval().cuda()
         custom = cls(f_rcnn).eval().cuda()
         return custom
